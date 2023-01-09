@@ -1,10 +1,11 @@
+const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
 module.exports.registerUser = async (req, res, next) => {
   try {
-    const { body } = req;
+    const { body, passwordHash } = req;
     console.log(body);
-    const user = await User.create(body);
+    const user = await User.create({ ...body, passwordHash });
     res.status(201).send(user);
   } catch (error) {
     next(error);
@@ -13,9 +14,14 @@ module.exports.registerUser = async (req, res, next) => {
 
 module.exports.loginUser = async (req, res, next) => {
   try {
-    const { body } = req;
-    const user = await User.create(body);
-    res.status(201).send(user);
+    const { body, passwordHash } = req;
+    const found = await User.findOne({
+      email: body.email
+    });
+    if (found) {
+      const result = await bcrypt.compare(passwordHash, found.passwordHash);
+      res.status(200).send('Logged in');
+    }
   } catch (error) {
     next(error);
   }

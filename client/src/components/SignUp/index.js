@@ -6,7 +6,7 @@ const initialValues = {
   firstName: '',
   lastName: '',
   email: '',
-  passwordHash: '',
+  password: '',
   birthday: format(new Date(), 'yyyy-MM-dd')
 };
 
@@ -24,7 +24,7 @@ const SignUp = props => {
             <Field name="firstName" placeholder="Type your first name" />
             <Field name="lastName" placeholder="Type your last name" />
             <Field name="email" placeholder="Type your email" />
-            <Field name="passwordHash" placeholder="Type your password" />
+            <Field name="password" placeholder="Type your password" />
             <Field name="birthday" type="date" />
             <button type="submit">Send</button>
           </Form>
