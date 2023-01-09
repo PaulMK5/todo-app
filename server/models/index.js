@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./User');
-const {DB} = require('../configs/db');
+const Task = require('./Task');
+const { DB } = require('../configs/db');
 
 mongoose.connect(DB).catch(err => {
   console.log('connection error');
@@ -8,4 +9,4 @@ mongoose.connect(DB).catch(err => {
   process.exit(1);
 });
 
-module.exports = { User };
+module.exports = { User, Task };

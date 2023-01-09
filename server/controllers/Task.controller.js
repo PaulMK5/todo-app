@@ -1,6 +1,6 @@
 const { Task } = require('../models');
 
-module.exports.getAllUserTasks = async (req, res, next) => {
+module.exports.getTasks = async (req, res, next) => {
   try {
     const {
       params: { userId }
@@ -14,7 +14,7 @@ module.exports.getAllUserTasks = async (req, res, next) => {
   }
 };
 
-module.exports.createUserTask = async (req, res, next) => {
+module.exports.createTask = async (req, res, next) => {
   try {
     const { body } = req;
     const task = await Task.create(body);

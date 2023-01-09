@@ -6,7 +6,7 @@ module.exports.registerUser = async (req, res, next) => {
     const { body, passwordHash } = req;
     console.log(body);
     const user = await User.create({ ...body, passwordHash });
-    res.status(201).send(user);
+    res.status(201).send({ data: user });
   } catch (error) {
     next(error);
   }
@@ -20,7 +20,10 @@ module.exports.loginUser = async (req, res, next) => {
     });
     if (found) {
       const result = await bcrypt.compare(passwordHash, found.passwordHash);
-      res.status(200).send('Logged in');
+      console.log('passwordHash', passwordHash);
+      console.log('found.passwordHash', found.passwordHash);
+      console.log(result);
+      res.status(200).send({ data: found });
     }
   } catch (error) {
     next(error);
