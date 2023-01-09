@@ -3,13 +3,13 @@ const { User } = require('../models');
 module.exports.registerUser = async (req, res, next) => {
   try {
     const { body } = req;
+    console.log(body);
     const user = await User.create(body);
     res.status(201).send(user);
   } catch (error) {
     next(error);
   }
 };
-
 
 module.exports.loginUser = async (req, res, next) => {
   try {
@@ -20,7 +20,6 @@ module.exports.loginUser = async (req, res, next) => {
     next(error);
   }
 };
-
 
 /* module.exports.findOne = async (req, res, next) => {
   try {
