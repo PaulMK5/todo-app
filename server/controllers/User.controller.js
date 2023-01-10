@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
+const { createToken, verifyToken } = require('../services/tokenServices');
 
 module.exports.registerUser = async (req, res, next) => {
   try {
@@ -15,20 +16,45 @@ module.exports.registerUser = async (req, res, next) => {
 module.exports.loginUser = async (req, res, next) => {
   try {
     const { body, passwordHash } = req;
-    const found = await User.findOne({
-      email: body.email
-    });
-    if (found) {
-      const result = await bcrypt.compare(passwordHash, found.passwordHash);
-      // console.log('passwordHash', passwordHash);
-      // console.log('found.passwordHash', found.passwordHash);
-      // console.log(result);
-      const plainObj = found.toObject();
-      delete plainObj.passwordHash;
-      console.log(plainObj);
-      res.status(200).send({ data: plainObj });
+
+    let found;
+
+    //has token in request
+    if (body.token) {
+      const verified = await verifyToken(body.token);
+      console.log('result of token verification: ', verified);
+      found = await User.findById(verified.userId);
+
+      if (found) {
+        console.log('found user by id after verification:', found);
+        const plainObj = found.toObject();
+        delete plainObj.passwordHash;
+        return res.status(200).send({ user: plainObj, authenticated: true });
+      } else {
+        return res.status(403).send();
+      }
+    }
+
+    //doesn't have token in request
+    if (body.email && !body.token) {
+      found = await User.findOne({
+        email: body.email
+      });
+      if (found) {
+        console.log('found user: ', found);
+        const result = await bcrypt.compare(passwordHash, found.passwordHash);
+        // console.log('passwordHash', passwordHash);
+        // console.log('found.passwordHash', found.passwordHash);
+        // console.log(result);
+        const token = await createToken(found._id, found.email);
+        const plainObj = found.toObject();
+        delete plainObj.passwordHash;
+        // console.log(plainObj);
+        res.status(200).send({ user: plainObj, token });
+      }
     }
   } catch (error) {
+    console.log('Error in User.controller.loginUser: ', error.message);
     next(error);
   }
 };

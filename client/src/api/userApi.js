@@ -29,7 +29,13 @@ export const loginUser = async data => {
 
   if (response.status === 400) {
     const error = await response.json();
-    console.log('error in loginUser: ', error);
+    console.log('received 400 response with error in loginUser: ', error);
+    return Promise.reject(error);
+  }
+
+  if (response.status === 403) {
+    const error = await response.json();
+    console.log('received 403 response with error in loginUser: ', error);
     return Promise.reject(error);
   }
 

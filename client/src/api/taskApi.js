@@ -4,8 +4,9 @@ export const getTasks = async userId => {
   const response = await fetch(`${API_BASE}/tasks/${userId}`);
 
   if (response.status === 400) {
-    const res = await response.json();
-    console.log('ERROR:', res);
+    const error = await response.json();
+    console.log('error in taskApi.getTasks: ', error);
+    return Promise.reject(error);
   }
 
   return response.json();
@@ -22,7 +23,7 @@ export const createTask = async data => {
 
   if (response.status === 400) {
     const error = await response.json();
-    console.log('error in registerUser: ', error);
+    console.log('error in taskApi.createTask: ', error);
     return Promise.reject(error);
   }
 
