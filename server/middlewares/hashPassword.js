@@ -9,7 +9,6 @@ module.exports.hashPass = async (req, res, next) => {
     } = req;
     req.passwordHash = await bcrypt.hash(password, SALT);
     delete req.body.password;
-    console.log(req.body);
     next();
   } catch (err) {
     next(err);

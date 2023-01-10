@@ -20,10 +20,13 @@ module.exports.loginUser = async (req, res, next) => {
     });
     if (found) {
       const result = await bcrypt.compare(passwordHash, found.passwordHash);
-      console.log('passwordHash', passwordHash);
-      console.log('found.passwordHash', found.passwordHash);
-      console.log(result);
-      res.status(200).send({ data: found });
+      // console.log('passwordHash', passwordHash);
+      // console.log('found.passwordHash', found.passwordHash);
+      // console.log(result);
+      const plainObj = found.toObject();
+      delete plainObj.passwordHash;
+      console.log(plainObj);
+      res.status(200).send({ data: plainObj });
     }
   } catch (error) {
     next(error);
