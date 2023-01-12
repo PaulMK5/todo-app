@@ -1,13 +1,19 @@
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
-const { createToken, verifyToken } = require('../services/tokenServices');
+const { User, RefreshToken } = require('../models');
+const { createTokenPair } = require('../services/tokenServices');
+const { RefreshTokenError } = require('../errors/RefreshTokenError');
+const UserNotFoundError = require('../errors/UserNotFoundError');
 
 module.exports.registerUser = async (req, res, next) => {
   try {
     const { body, passwordHash } = req;
-    console.log(body);
     const user = await User.create({ ...body, passwordHash });
-    res.status(201).send({ data: user });
+    const tokens = await createTokenPair(user.id, user.email);
+    await RefreshToken.create({
+      token: tokens.refreshToken,
+      userId: user._id
+    });
+    res.status(201).send({ user: user, tokens: tokens });
   } catch (error) {
     next(error);
   }
@@ -15,104 +21,87 @@ module.exports.registerUser = async (req, res, next) => {
 
 module.exports.loginUser = async (req, res, next) => {
   try {
-    const { body, passwordHash } = req;
-
-    let found;
-
-    //has token in request
-    if (body.token) {
-      const verified = await verifyToken(body.token);
-      console.log('result of token verification: ', verified);
-      found = await User.findById(verified.userId);
-
-      if (found) {
-        console.log('found user by id after verification:', found);
-        const plainObj = found.toObject();
-        delete plainObj.passwordHash;
-        return res.status(200).send({ user: plainObj, authenticated: true });
-      } else {
-        return res.status(403).send();
-      }
-    }
-
-    //doesn't have token in request
-    if (body.email && !body.token) {
-      found = await User.findOne({
-        email: body.email
-      });
-      if (found) {
-        console.log('found user: ', found);
-        const result = await bcrypt.compare(passwordHash, found.passwordHash);
-        // console.log('passwordHash', passwordHash);
-        // console.log('found.passwordHash', found.passwordHash);
-        // console.log(result);
-        const token = await createToken(found._id, found.email);
-        const plainObj = found.toObject();
-        delete plainObj.passwordHash;
-        // console.log(plainObj);
-        res.status(200).send({ user: plainObj, token });
-      }
-    }
-  } catch (error) {
-    console.log('Error in User.controller.loginUser: ', error.message);
-    next(error);
-  }
-};
-
-/* module.exports.findOne = async (req, res, next) => {
-  try {
     const {
-      params: { userId }
+      body: { email },
+      passwordHash
     } = req;
-    const user = await User.findById(userId).populate('comments');
-    if (!user) {
-      res.status(404);
-    }
-    res.status(200).send(user);
-  } catch (error) {
-    next(error);
-  }
-};
 
-module.exports.findAll = async (req, res, next) => {
-  try {
-    const result = await User.find().populate('comments');
-    res.status(200).send(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports.deleteOne = async (req, res, next) => {
-  try {
-    const {
-      params: { userId }
-    } = req;
-    const result = await User.findByIdAndDelete(userId);
-    if (!result) {
-      return res.status(400).send('There is no such user');
-    }
-    res.status(200).send(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports.updateOne = async (req, res, next) => {
-  try {
-    const {
-      params: { userId },
-      body
-    } = req;
-    const user = await User.findByIdAndUpdate(userId, body, {
-      returnDocument: 'after'
+    const found = await User.findOne({
+      email: email
     });
-    if (!user) {
-      res.status(404);
+    if (!found) {
+      throw new UserNotFoundError('user not found in loginUser');
     }
-    res.status(200).send(user);
+
+    const result = await bcrypt.compare(passwordHash, found.passwordHash);
+    /*if (!result) {
+          return res.status(403).send({ err: 'password incorrect' });
+        } */
+    const tokens = await createTokenPair(found.id, found.email);
+    await RefreshToken.create({
+      token: tokens.refreshToken,
+      userId: found._id
+    });
+    const plainObj = found.toObject();
+    delete plainObj.passwordHash;
+    res.status(200).send({ user: plainObj, tokens: tokens });
   } catch (error) {
     next(error);
   }
 };
- */
+
+module.exports.getUser = async (req, res, next) => {
+  try {
+    const { payload } = req;
+
+    const found = await User.findOne({
+      email: payload.email
+    });
+
+    if (!found) {
+      throw new UserNotFoundError('user not found in getUser');
+    }
+    res.status(200).send({ user: found });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.refresh = async (req, res, next) => {
+  try {
+    const {
+      body: { refreshToken }
+    } = req;
+
+    let payload;
+    let refreshTokenFromDB;
+
+    try {
+      payload = await verifyRefreshToken(refreshToken);
+      refreshTokenFromDB = await RefreshToken.findOne({
+        token: refreshToken
+      });
+    } catch (error) {
+      next(new RefreshTokenError(error));
+    }
+
+    const found = await User.findOne({
+      email: payload.email,
+      _id: refreshTokenFromDB.userId
+    });
+
+    if (!found) {
+      throw new UserNotFoundError('user not found in refresh');
+    }
+
+    const tokens = await createTokenPair(found.id, found.email);
+    await refreshTokenFromDB.remove();
+    await RefreshToken.create({
+      token: tokens.refreshToken,
+      userId: found._id
+    });
+    res.status(201).send({ tokens });
+  } catch (error) {
+    next(error);
+  }
+};

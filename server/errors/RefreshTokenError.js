@@ -1,0 +1,5 @@
+module.exports = class RefreshTokenError extends Error {
+  constructor(message) {
+    super(message);
+  }
+};

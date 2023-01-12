@@ -1,16 +1,43 @@
 // const { ValidationError } = require('yup');
-const UserError = require('./errors/UserError');
+const UserNotFoundError = require('./errors/UserNotFoundError');
 const {
   Error: { ValidationError, CastError }
 } = require('mongoose');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
+const RefreshTokenError = require('./errors/RefreshTokenError');
+const AccessTokenError = require('./errors/AccessTokenError');
 
 module.exports.errorHandler = async (err, req, res, next) => {
   if (err instanceof ValidationError) {
-    return res.status(400).send({ err: err.message });
+    return res.status(400).send({ error: err.message });
   }
-  if (err instanceof UserError) {
-    return res.status(400).send(err.message);
+  if (err instanceof UserNotFoundError) {
+    return res
+      .status(404)
+      .set({
+        'Access-Control-Expose-Headers': 'error',
+        error: 'userNotFound'
+      })
+      .send({ error: err.message });
+  }
+  if (err instanceof AccessTokenError) {
+    return res
+      .status(403)
+      .set({
+        'Access-Control-Expose-Headers': 'error',
+        error: 'access token expired'
+      })
+      .send({ error: err.message });
+  }
+
+  if (err instanceof RefreshTokenError) {
+    return res
+      .status(403)
+      .set({
+        'Access-Control-Expose-Headers': 'error',
+        error: 'refresh token expired or not found in db'
+      })
+      .send({ error: err.message });
   }
   if (err instanceof TokenExpiredError) {
     return res.status(403).send({
@@ -21,6 +48,6 @@ module.exports.errorHandler = async (err, req, res, next) => {
   if (err instanceof JsonWebTokenError) {
     return res.status(403).send(err);
   } else {
-    return res.status(400).send(err.message);
+    return res.status(400).send({ error: err.message });
   }
 };

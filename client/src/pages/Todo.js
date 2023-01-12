@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TodoList from '../components/TodoList';
-import { getTasks, createTask } from '../api/taskApi';
-import { loginUser } from '../api/userApi';
+import { getTasks, createTask, deleteTask } from '../api/taskApi';
 import TodoForm from '../components/TodoForm';
 
 const Todo = props => {
@@ -10,44 +9,18 @@ const Todo = props => {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    if (!props.user) {
-      const token = localStorage.getItem('token');
-      if (token) {
-        console.log('FOUND TOKEN! sending request to login');
-        loginUser({ token: token })
-          .then(res => {
-            console.log('received response: ');
-            console.log(res);
-            props.sendUser(res.user);
-            // if (!res.err) {
-            console.log('requesting user tasks');
-            getTasks(res.user._id).then(res => {
-              console.log('recieved tasks getTasks(res.user._id): ');
-              console.log(res);
-              setTodos(res.data);
-            });
-            // }
-          })
-          .catch(err => {
-            console.error('Error caught in Todo Page useEffect', err);
-            localStorage.removeItem('token');
-            navigate('/');
-          });
-      } else {
-        return navigate('/');
-      }
-    } else {
-      getTasks(props.user._id)
-        .then(res => {
-          setTodos(res.data);
-        })
-        .catch(err => {
-          console.log('Error in Todo page getTasks: ', err);
-        });
-    }
-  }, [props.user]);
+    getTasks()
+      .then(res => {
+        setTodos(res.data);
+      })
+      .catch(err => {
+        console.log('Error in Todo page getTasks: ', err);
+        console.log('navigating to home');
+        navigate('/');
+      });
+  }, []);
 
-  const getTask = data => {
+  const getNewTask = data => {
     createTask({
       authorId: props.user._id,
       status: 'new',
@@ -62,11 +35,23 @@ const Todo = props => {
       });
   };
 
+  const removeTask = taskId => {
+    deleteTask({ taskId })
+      .then(() => {
+        const newTodos = todos;
+        const filtered = newTodos.filter(task => task._id !== taskId);
+        setTodos(filtered);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   return (
     <div>
       <h1>ToDo List</h1>
-      <TodoForm sendTask={getTask} />
-      <TodoList todos={todos} />
+      <TodoForm sendTask={getNewTask} />
+      <TodoList todos={todos} removeTask={removeTask} />
     </div>
   );
 };

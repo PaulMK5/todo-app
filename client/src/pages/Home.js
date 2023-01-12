@@ -17,13 +17,8 @@ const Home = props => {
 
   const getData = ({ cb, values }) => {
     cb(values)
-      .then(res => {
-        console.log('In Home component, received response: ');
-        console.log(res);
-        if (res.token) {
-          localStorage.setItem('token', res.token);
-        }
-        // props.sendUser(res.user);
+      .then(user => {
+        props.sendUser(user);
         navigate('/tasks');
       })
       .catch(({ err }) => setError(err));
