@@ -1,5 +1,6 @@
 module.exports = class AccessTokenError extends Error {
-  constructor(message) {
-    super(message);
+  constructor(error) {
+    super('AccessTokenError: ' + error);
+    this.expiredAt = error.expiredAt;
   }
 };

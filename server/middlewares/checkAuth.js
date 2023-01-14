@@ -11,6 +11,7 @@ module.exports.checkAuth = async (req, res, next) => {
     try {
       payload = await verifyAccessToken(token);
     } catch (error) {
+      console.log('accessToken error in chechAuth middleware', error);
       next(new AccessTokenError(error));
     }
     req.payload = payload;

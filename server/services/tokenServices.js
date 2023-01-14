@@ -7,7 +7,7 @@ const promJWTsign = promisify(jwt.sign);
 const promJWTverify = promisify(jwt.verify);
 
 const secret_AT = 'qwerty';
-const secret_RT = 'qwerty';
+const secret_RT = 'qwerty123';
 
 createRefreshToken = async (userId, email) =>
   await promJWTsign({ userId, email }, secret_RT, {
@@ -27,7 +27,7 @@ createTokenPair = async (userId, email) => {
 
 verifyAccessToken = async token => await promJWTverify(token, secret_AT);
 
-verifyRefreshToken = async token => await promJWTverify(token, secret_AT);
+verifyRefreshToken = async token => await promJWTverify(token, secret_RT);
 
 module.exports = {
   createRefreshToken,

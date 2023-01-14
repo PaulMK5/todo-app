@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { User, RefreshToken } = require('../models');
 const { createTokenPair } = require('../services/tokenServices');
-const { RefreshTokenError } = require('../errors/RefreshTokenError');
+const RefreshTokenError = require('../errors/RefreshTokenError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
 
 module.exports.registerUser = async (req, res, next) => {
@@ -91,7 +91,7 @@ module.exports.refresh = async (req, res, next) => {
     });
 
     if (!found) {
-      throw new UserNotFoundError('user not found in refresh');
+      next(new UserNotFoundError('user not found in refresh'));
     }
 
     const tokens = await createTokenPair(found.id, found.email);

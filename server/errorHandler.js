@@ -6,8 +6,13 @@ const {
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const RefreshTokenError = require('./errors/RefreshTokenError');
 const AccessTokenError = require('./errors/AccessTokenError');
+const TaskNotFoundError = require('./errors/TaskNotFoundError');
 
 module.exports.errorHandler = async (err, req, res, next) => {
+  if (err instanceof TaskNotFoundError) {
+    return res.status(403).send({ error: err.message });
+  }
+
   if (err instanceof ValidationError) {
     return res.status(400).send({ error: err.message });
   }
@@ -27,7 +32,10 @@ module.exports.errorHandler = async (err, req, res, next) => {
         'Access-Control-Expose-Headers': 'error',
         error: 'access token expired'
       })
-      .send({ error: err.message });
+      .send({
+        err: err.message,
+        expiredAt: err.expiredAt
+      });
   }
 
   if (err instanceof RefreshTokenError) {

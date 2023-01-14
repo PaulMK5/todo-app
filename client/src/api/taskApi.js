@@ -20,6 +20,7 @@ export const getTasks = async () => {
   }
   if (response.status === 403) {
     await refreshSession();
+    return history.replace('/');
   }
   return response.json();
 };
@@ -46,6 +47,7 @@ export const createTask = async data => {
   }
   if (response.status === 403) {
     await refreshSession();
+    // return history.replace('/');
   }
   return response.json();
 };
@@ -73,6 +75,7 @@ export const deleteTask = async data => {
   if (response.status === 403) {
     if (response.status === 403) {
       await refreshSession();
+      return history.replace('/');
     }
   }
   return Promise.resolve();

@@ -17,7 +17,7 @@ function App() {
         .then(user => {
           if (user) {
             setUser(user);
-            history.push('/tasks');
+            // history.push('/tasks');
           }
         })
         .catch(err => {

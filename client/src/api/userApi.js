@@ -1,5 +1,8 @@
 import { API_BASE } from '../constants';
+import axios from 'axios';
 import { history } from '../App';
+
+const axiosInst = axios.create({ baseURL: `${API_BASE}/users` });
 
 export const registerUser = async data => {
   const response = await fetch(`${API_BASE}/users/sign-up`, {
@@ -24,7 +27,7 @@ export const registerUser = async data => {
   }
 };
 
-export const getUser = async () => {
+/* export const getUser = async () => {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken) {
     return history.replace('/');
@@ -44,6 +47,29 @@ export const getUser = async () => {
   } else {
     history.replace('/');
   }
+}; */
+
+export const getUser = async () => {
+  const accessToken = localStorage.getItem('accessToken');
+  if (!accessToken) {
+    return history.replace('/');
+  }
+
+  axiosInst
+    .get('', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+    .then(res => {
+      console.log(res);
+      console.log('RESPONSE DATA', res.data);
+      return res.data.user;
+    })
+    .catch(err => {
+      console.log('error in getUser: ', err);
+      // await refreshSession()
+    });
 };
 
 export async function refreshSession() {
@@ -61,9 +87,9 @@ export async function refreshSession() {
   if (res.status === 403 || res.status === 404) {
     return history.replace('/');
   }
-  const tokenPair = await res.json();
-  localStorage.setItem('refreshToken', tokenPair.refreshToken);
-  localStorage.setItem('accessToken', tokenPair.accessToken);
+  const { tokens } = await res.json();
+  localStorage.setItem('refreshToken', tokens.refreshToken);
+  localStorage.setItem('accessToken', tokens.accessToken);
   return;
 }
 

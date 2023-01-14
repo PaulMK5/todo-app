@@ -1,4 +1,5 @@
 const { Task } = require('../models');
+const TaskNotFoundError = require('../errors/TaskNotFoundError');
 
 module.exports.getTasks = async (req, res, next) => {
   try {
@@ -33,7 +34,11 @@ module.exports.deleteTask = async (req, res, next) => {
       body: { taskId },
       payload: { userId }
     } = req;
-    await Task.findOneAndRemove({ authorId: userId, _id: taskId });
+
+    const task = await Task.findOneAndRemove({ authorId: userId, _id: taskId });
+    if (!task) {
+      throw new TaskNotFoundError('task not found in deleteTAsk');
+    }
     res.status(200).send();
   } catch (error) {
     next(error);
