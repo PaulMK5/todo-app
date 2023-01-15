@@ -1,6 +1,23 @@
 import { API_BASE } from '../constants';
 import { history } from '../App';
+import axios from 'axios';
 import { refreshSession } from './userApi';
+
+const axiosInst = axios.create({ baseURL: `${API_BASE}/tasks` });
+
+axiosInst.interceptors.request.use(
+  config => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${accessToken}`
+      };
+    }
+    return config;
+  },
+  err => Promise.reject(err)
+);
 
 export const getTasks = async () => {
   const accessToken = localStorage.getItem('accessToken');
@@ -8,21 +25,16 @@ export const getTasks = async () => {
     return history.replace('/');
   }
 
-  const response = await fetch(`${API_BASE}/tasks/`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  });
+  const response = await axiosInst.get('');
   if (response.status === 400) {
     const error = await response.json();
     return Promise.reject(error);
   }
   if (response.status === 403) {
     await refreshSession();
-    return history.replace('/');
+    // return history.replace('/');
   }
-  return response.json();
+  return response.data.tasks;
 };
 
 export const createTask = async data => {
@@ -31,25 +43,17 @@ export const createTask = async data => {
     return history.replace('/');
   }
 
-  const response = await fetch(`${API_BASE}/tasks`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(data)
-  });
+  const response = await axiosInst.post('', data);
 
   if (response.status === 400) {
-    const error = await response.json();
-    console.log('error in taskApi.createTask: ', error);
-    return Promise.reject(error);
+    console.log('error in taskApi.createTask: ', response.data);
+    return Promise.reject(response.data);
   }
   if (response.status === 403) {
     await refreshSession();
     // return history.replace('/');
   }
-  return response.json();
+  return response.data.task;
 };
 
 export const deleteTask = async data => {
@@ -58,19 +62,11 @@ export const deleteTask = async data => {
     return history.replace('/');
   }
 
-  const response = await fetch(`${API_BASE}/tasks`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(data)
-  });
+  const response = await axiosInst.delete('', { data: data });
 
   if (response.status === 400) {
-    const error = await response.json();
-    console.log('error in taskApi.createTask: ', error);
-    return Promise.reject(error);
+    console.log('error in taskApi.createTask: ', response.data);
+    return Promise.reject(response.data);
   }
   if (response.status === 403) {
     if (response.status === 403) {

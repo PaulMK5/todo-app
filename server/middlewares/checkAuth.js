@@ -6,6 +6,9 @@ module.exports.checkAuth = async (req, res, next) => {
     const {
       headers: { authorization }
     } = req;
+    if (!authorization) {
+      throw new AccessTokenError();
+    }
     const [, token] = authorization.split(' ');
     let payload;
     try {

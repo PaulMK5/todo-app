@@ -9,7 +9,7 @@ module.exports.getTasks = async (req, res, next) => {
     const userTasks = await Task.find({
       authorId: userId
     });
-    return res.status(200).send({ data: userTasks });
+    return res.status(200).send({ tasks: userTasks });
   } catch (error) {
     next(error);
   }
@@ -22,7 +22,7 @@ module.exports.createTask = async (req, res, next) => {
       payload: { userId }
     } = req;
     const task = await Task.create({ ...body, authorId: userId });
-    res.status(201).send({ data: task });
+    res.status(201).send({ task: task });
   } catch (error) {
     next(error);
   }
@@ -37,7 +37,7 @@ module.exports.deleteTask = async (req, res, next) => {
 
     const task = await Task.findOneAndRemove({ authorId: userId, _id: taskId });
     if (!task) {
-      throw new TaskNotFoundError('task not found in deleteTAsk');
+      throw new TaskNotFoundError('task not found in deleteTask');
     }
     res.status(200).send();
   } catch (error) {

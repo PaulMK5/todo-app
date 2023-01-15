@@ -15,9 +15,10 @@ function App() {
     if (!user) {
       getUser()
         .then(user => {
+          console.log('in App getUser then');
           if (user) {
             setUser(user);
-            // history.push('/tasks');
+            history.push('/tasks');
           }
         })
         .catch(err => {
@@ -25,7 +26,7 @@ function App() {
           // localStorage.removeItem('token');
         });
     }
-  }, []);
+  }, [user]);
 
   return (
     <HistoryRouter history={history}>

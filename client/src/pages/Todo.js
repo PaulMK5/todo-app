@@ -10,8 +10,8 @@ const Todo = props => {
 
   useEffect(() => {
     getTasks()
-      .then(res => {
-        setTodos(res.data);
+      .then(tasks => {
+        setTodos(tasks);
       })
       .catch(err => {
         console.log('Error in Todo page getTasks: ', err);
@@ -26,8 +26,8 @@ const Todo = props => {
       status: 'new',
       ...data
     })
-      .then(({ data: createdTask }) => {
-        const newTodos = [...todos, createdTask];
+      .then(task => {
+        const newTodos = [...todos, task];
         setTodos(newTodos);
       })
       .catch(error => {
@@ -38,8 +38,7 @@ const Todo = props => {
   const removeTask = taskId => {
     deleteTask({ taskId })
       .then(() => {
-        const newTodos = todos;
-        const filtered = newTodos.filter(task => task._id !== taskId);
+        const filtered = todos.filter(task => task._id !== taskId);
         setTodos(filtered);
       })
       .catch(error => {

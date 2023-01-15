@@ -4,50 +4,20 @@ import { history } from '../App';
 
 const axiosInst = axios.create({ baseURL: `${API_BASE}/users` });
 
-export const registerUser = async data => {
-  const response = await fetch(`${API_BASE}/users/sign-up`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
+export const registerUser = async userInput => {
+  const res = await axiosInst.post('/sign-up', userInput);
 
-  if (response.status === 201) {
-    const { user, tokens } = await response.json();
-    localStorage.setItem('accessToken', tokens.accessToken);
-    localStorage.setItem('refreshToken', tokens.refreshToken);
-    return user;
+  if (res.status === 201) {
+    localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+    localStorage.setItem('accessToken', res.data.tokens.accessToken);
+    return res.data.user;
   }
 
-  if (response.status !== 201) {
-    const error = await response.json();
-    console.log('error in registerUser: ', error);
-    return Promise.reject(error);
+  if (res.status !== 201) {
+    console.log('error in registerUser: ', res.data);
+    return Promise.reject(res.data);
   }
 };
-
-/* export const getUser = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  if (!accessToken) {
-    return history.replace('/');
-  }
-  if (accessToken) {
-    const res = await fetch(`${API_BASE}/users/`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-    if (res.status === 403) {
-      await refreshSession();
-    }
-    const { user } = await res.json();
-    return user;
-  } else {
-    history.replace('/');
-  }
-}; */
 
 export const getUser = async () => {
   const accessToken = localStorage.getItem('accessToken');
@@ -55,20 +25,21 @@ export const getUser = async () => {
     return history.replace('/');
   }
 
-  axiosInst
+  return axiosInst
     .get('', {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     })
     .then(res => {
-      console.log(res);
       console.log('RESPONSE DATA', res.data);
       return res.data.user;
     })
     .catch(err => {
       console.log('error in getUser: ', err);
-      // await refreshSession()
+      if (err.status === 403 && localStorage.getItem('refreshToken')) {
+        refreshSession();
+      }
     });
 };
 
@@ -77,59 +48,33 @@ export async function refreshSession() {
   if (!refreshToken) {
     return history.replace('/');
   }
-  const res = await fetch(`${API_BASE}/users/refresh`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ refreshToken })
-  });
+
+  const res = await axiosInst.post('/refresh', { refreshToken });
+
   if (res.status === 403 || res.status === 404) {
     return history.replace('/');
   }
-  const { tokens } = await res.json();
-  localStorage.setItem('refreshToken', tokens.refreshToken);
-  localStorage.setItem('accessToken', tokens.accessToken);
+  localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+  localStorage.setItem('accessToken', res.data.tokens.accessToken);
   return;
 }
 
-/* const response = await fetchUserWithAuth(token);
-  if (response.status === 401 && response.headers.get('error') === 'refresh') {
-    const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetchUserWithAuth(refreshToken);
-    if (response.status === 201) {
-      return Promise().resolve();
-       const res = await response.json();
-      localStorage.setItem('accessToken', res.accessToken);
-      const respWithUser = await fetchUserWithAuth(res.accessToken);
-      return respWithUser.json(); 
-    } else if (
-      response.status === 401 &&
-      response.headers.get('error') === 'refreshTokenExpired'
-    ) {
-      history.push('/');
-      alert('refresh token expired, please login again');
-      return Promise.reject('refresh token expired, please login again');
-    } */
-
 export const loginUser = async userInput => {
-  const res = await fetch(`${API_BASE}/users/sign-in`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(userInput)
-  });
+  const res = await axiosInst.post('/sign-in', userInput);
+
   if (res.status === 404) {
-    const error = await res.json();
-    return Promise.reject(error);
+    return Promise.reject(res.data.error);
   }
 
-  const { user, tokens } = await res.json();
-  localStorage.setItem('accessToken', tokens.accessToken);
-  localStorage.setItem('refreshToken', tokens.refreshToken);
+  if (res.status === 403) {
+    console.log('received 403 response with error in loginUser: ', res.data);
+    return Promise.reject(res.data);
+  }
 
-  return user;
+  localStorage.setItem('accessToken', res.data.tokens.accessToken);
+  localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+
+  return res.data.user;
 };
 
 /* export const loginUser = async data => {
@@ -164,5 +109,5 @@ export const loginUser = async userInput => {
 
 export const logoutUser = () => {
   localStorage.removeItem('token');
-  history.push('/');
+  history.replace('/');
 };

@@ -1,5 +1,5 @@
 module.exports = {
-  SALT: 12,
-  EXPIRED_RT: 60 * 7,
-  EXPIRED_AT: 10
+  SALT_ROUNDS: 12,
+  EXPIRED_RT: 60 * 60 * 24,
+  EXPIRED_AT: 60 * 60 * 24
 };

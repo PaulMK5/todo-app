@@ -1,19 +1,22 @@
 const bcrypt = require('bcrypt');
 const { User, RefreshToken } = require('../models');
-const { createTokenPair } = require('../services/tokenServices');
+const {
+  createTokenPair,
+  verifyRefreshToken
+} = require('../services/tokenServices');
 const RefreshTokenError = require('../errors/RefreshTokenError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
+const { SALT_ROUNDS } = require('../configs/constants');
 
 module.exports.registerUser = async (req, res, next) => {
   try {
-    const { body, passwordHash } = req;
+    const { body } = req;
+    const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
     const user = await User.create({ ...body, passwordHash });
     const tokens = await createTokenPair(user.id, user.email);
-    await RefreshToken.create({
-      token: tokens.refreshToken,
-      userId: user._id
-    });
-    res.status(201).send({ user: user, tokens: tokens });
+    const userPOJO = user.toObject();
+    delete userPOJO.passwordHash;
+    res.status(201).send({ user: userPOJO, tokens: tokens });
   } catch (error) {
     next(error);
   }
@@ -22,26 +25,17 @@ module.exports.registerUser = async (req, res, next) => {
 module.exports.loginUser = async (req, res, next) => {
   try {
     const {
-      body: { email },
-      passwordHash
+      body: { email, password }
     } = req;
 
-    const found = await User.findOne({
-      email: email
-    });
-    if (!found) {
-      throw new UserNotFoundError('user not found in loginUser');
+    const found = await User.findOne({ email });
+    const result = await bcrypt.compare(password, found.passwordHash);
+
+    if (!result || !found) {
+      return res.status(403).send({ error: 'incorrect credentials' });
     }
 
-    const result = await bcrypt.compare(passwordHash, found.passwordHash);
-    /*if (!result) {
-          return res.status(403).send({ err: 'password incorrect' });
-        } */
     const tokens = await createTokenPair(found.id, found.email);
-    await RefreshToken.create({
-      token: tokens.refreshToken,
-      userId: found._id
-    });
     const plainObj = found.toObject();
     delete plainObj.passwordHash;
     res.status(200).send({ user: plainObj, tokens: tokens });
@@ -61,7 +55,9 @@ module.exports.getUser = async (req, res, next) => {
     if (!found) {
       throw new UserNotFoundError('user not found in getUser');
     }
-    res.status(200).send({ user: found });
+    const userPOJO = found.toObject();
+    delete userPOJO.passwordHash;
+    res.status(200).send({ user: userPOJO });
   } catch (error) {
     next(error);
   }
@@ -82,6 +78,7 @@ module.exports.refresh = async (req, res, next) => {
         token: refreshToken
       });
     } catch (error) {
+      console.log('error refreshing token in User.controller.refresh');
       next(new RefreshTokenError(error));
     }
 
@@ -96,10 +93,6 @@ module.exports.refresh = async (req, res, next) => {
 
     const tokens = await createTokenPair(found.id, found.email);
     await refreshTokenFromDB.remove();
-    await RefreshToken.create({
-      token: tokens.refreshToken,
-      userId: found._id
-    });
     res.status(201).send({ tokens });
   } catch (error) {
     next(error);

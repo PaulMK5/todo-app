@@ -2,6 +2,7 @@ const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const { EXPIRED_RT } = require('../configs/constants');
 const { EXPIRED_AT } = require('../configs/constants');
+const { RefreshToken } = require('../models');
 
 const promJWTsign = promisify(jwt.sign);
 const promJWTverify = promisify(jwt.verify);
@@ -9,10 +10,16 @@ const promJWTverify = promisify(jwt.verify);
 const secret_AT = 'qwerty';
 const secret_RT = 'qwerty123';
 
-createRefreshToken = async (userId, email) =>
-  await promJWTsign({ userId, email }, secret_RT, {
+createRefreshToken = async (userId, email) => {
+  const token = await promJWTsign({ userId, email }, secret_RT, {
     expiresIn: EXPIRED_RT
   });
+  await RefreshToken.create({
+    token,
+    userId
+  });
+  return token;
+};
 
 createAccessToken = async (userId, email) =>
   await promJWTsign({ userId, email }, secret_AT, {
