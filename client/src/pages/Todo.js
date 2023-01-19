@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import TodoList from '../components/TodoList';
-import { getTasks, createTask, deleteTask } from '../api/taskApi';
 import {
   getTasksRequest,
   createTaskRequest,
@@ -11,20 +9,6 @@ import {
 import TodoForm from '../components/TodoForm';
 
 const Todo = props => {
-  const navigate = useNavigate();
-
-  /* useEffect(() => {
-    getTasks()
-      .then(tasks => {
-        setTodos(tasks);
-      })
-      .catch(err => {
-        console.log('Error in Todo page getTasks: ', err);
-        console.log('navigating to home');
-        navigate('/');
-      });
-  }, []); */
-
   useEffect(() => {
     props.getTasksRequest();
   }, []);
@@ -63,7 +47,7 @@ const Todo = props => {
   }; */
 
   const removeTask = taskId => {
-    deleteTask(taskId);
+    props.deleteTaskRequest(taskId);
   };
 
   return (

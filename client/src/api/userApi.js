@@ -34,8 +34,12 @@ axiosInst.interceptors.response.use(
       console.log('REFRESH');
       await refreshSession();
       console.log('RETRY');
-      const res = await axiosInst(err.config);
-      return res.data;
+      const accessToken = localStorage.getItem('accessToken');
+      err.config.headers = {
+        ...err.config.headers,
+        Authorization: `Bearer ${accessToken}`
+      };
+      return await axiosInst(err.config);
     } else if (err.response.status === 401) {
       logoutUser();
       history.replace('/');
@@ -53,9 +57,9 @@ export const registerUser = async userInput => {
 export const getUser = async () => {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken) {
+    console.log('No access token found!');
     return;
   }
-
   const res = await axiosInst.get('');
   return res.data;
 };

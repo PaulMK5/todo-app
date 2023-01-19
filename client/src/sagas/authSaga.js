@@ -12,8 +12,11 @@ import { history } from '../App';
 
 export function* loginSaga(action) {
   try {
-    const { user } = yield loginUser(action.data);
-    yield put(loginUserSuccess(user));
+    const data = yield loginUser(action.data);
+    if (!data) {
+      yield put(getUserError('No response from loginUser'));
+    }
+    yield put(loginUserSuccess(data.user));
     history.push('/tasks');
   } catch (error) {
     if (error.response) {
@@ -26,11 +29,11 @@ export function* loginSaga(action) {
 
 export function* getUserSaga() {
   try {
-    const { user } = yield getUser();
-    if (!user) {
+    const data = yield getUser();
+    if (!data) {
       return;
     }
-    yield put(getUserSuccess(user));
+    yield put(getUserSuccess(data.user));
     history.push('/tasks');
   } catch (error) {
     if (error.response) {
@@ -45,7 +48,8 @@ export function* registerSaga(action) {
   try {
     const { user } = yield registerUser(action.data);
     yield put(registerUserSuccess(user));
+    history.push('/tasks');
   } catch (error) {
-    yield put(registerUserError(error));
+    yield put(registerUserError(error.response.data.error));
   }
 }

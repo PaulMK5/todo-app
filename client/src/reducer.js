@@ -48,8 +48,10 @@ export const reducer = (state = initialState, action) => {
       };
     }
     case ACTIONS.DELETE_TASK_SUCCESS: {
-      const { data: taskId } = action;
-      const filtered = state.tasks.filter(task => task._id !== taskId);
+      const {
+        data: { _id }
+      } = action;
+      const filtered = state.tasks.filter(task => task._id !== _id);
       return {
         ...state,
         tasks: filtered,

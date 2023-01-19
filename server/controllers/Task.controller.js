@@ -39,7 +39,7 @@ module.exports.deleteTask = async (req, res, next) => {
     if (!task) {
       throw new TaskNotFoundError('task not found in deleteTask');
     }
-    res.status(200).send();
+    res.status(200).send({ task });
   } catch (error) {
     next(error);
   }

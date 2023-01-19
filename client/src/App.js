@@ -14,7 +14,7 @@ function App(props) {
     if (!props.user) {
       props.getUserRequest();
     }
-  }, []);
+  }, [props.user]);
 
   return (
     <HistoryRouter history={history}>

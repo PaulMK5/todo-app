@@ -59,9 +59,10 @@ module.exports.getUser = async (req, res, next) => {
     if (!found) {
       throw new UserNotFoundError('user not found in getUser');
     }
+    const tokens = await createTokenPair(found.id, found.email);
     const userPOJO = found.toObject();
     delete userPOJO.passwordHash;
-    res.status(200).send({ user: userPOJO });
+    res.status(200).send({ user: userPOJO, tokens });
   } catch (error) {
     next(error);
   }
