@@ -11,7 +11,7 @@ export const history = createBrowserHistory({ window });
 function App() {
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!user) {
       getUser()
         .then(user => {
@@ -26,7 +26,7 @@ function App() {
           // localStorage.removeItem('token');
         });
     }
-  }, [user]);
+  }, [user]); */
 
   return (
     <HistoryRouter history={history}>

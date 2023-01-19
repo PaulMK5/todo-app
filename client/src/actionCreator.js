@@ -1,62 +1,107 @@
 import ACTIONS from './actionTypes';
 
-export const incrementAction = () => {
+export const loginUserRequest = data => {
   return {
-    type: ACTIONS.INCREMENT_ACTION
-  };
-};
-
-export const decrementAction = () => {
-  return {
-    type: ACTIONS.DECREMENT_ACTION
-  };
-};
-
-export const changeStep = data => {
-  return {
-    type: ACTIONS.CHANGE_STEP,
+    type: ACTIONS.LOGIN_USER_REQUEST,
     data
   };
 };
 
-export const requestCounterFetching = data => {
+export const loginUserSuccess = data => {
   return {
-    type: ACTIONS.REQUEST_COUNTER_FETCHING,
+    type: ACTIONS.LOGIN_USER_SUCCESS,
     data
   };
 };
 
-export const requestCounterSuccess = data => {
+export const loginUserError = data => {
   return {
-    type: ACTIONS.REQUEST_COUNTER_SUCCESS,
+    type: ACTIONS.LOGIN_USER_ERROR,
     data
   };
 };
 
-export const requestCounterError = data => {
+export const registerUserRequest = data => {
   return {
-    type: ACTIONS.REQUEST_COUNTER_ERROR,
+    type: ACTIONS.REGISTER_USER_REQUEST,
     data
   };
 };
 
-export const clickerSendData = data => {
+export const registerUserSuccess = data => {
   return {
-    type: ACTIONS.CLICKER_FETCH,
+    type: ACTIONS.REGISTER_USER_SUCCESS,
     data
   };
 };
 
-export const clickerResponseSuccess = data => {
+export const registerUserError = data => {
   return {
-    type: ACTIONS.CLICKER_RESPONSE_SUCCESS,
+    type: ACTIONS.REGISTER_USER_ERROR,
     data
   };
 };
 
-export const clickerResponseError = data => {
+//tasks
+
+export const getTasksRequest = () => {
   return {
-    type: ACTIONS.CLICKER_RESPONSE_ERROR,
+    type: ACTIONS.GET_TASKS_REQUEST
+  };
+};
+
+export const getTasksSuccess = data => {
+  return {
+    type: ACTIONS.GET_TASKS_SUCCESS,
+    data
+  };
+};
+
+export const getTasksError = data => {
+  return {
+    type: ACTIONS.GET_TASKS_ERROR,
+    data
+  };
+};
+
+export const createTaskRequest = data => {
+  return {
+    type: ACTIONS.CREATE_TASK_REQUEST,
+    data
+  };
+};
+
+export const createTaskSuccess = data => {
+  return {
+    type: ACTIONS.CREATE_TASK_SUCCESS,
+    data
+  };
+};
+
+export const createTaskError = data => {
+  return {
+    type: ACTIONS.CREATE_TASK_ERROR,
+    data
+  };
+};
+
+export const deleteTaskRequest = data => {
+  return {
+    type: ACTIONS.DELETE_TASK_REQUEST,
+    data
+  };
+};
+
+export const deleteTaskSuccess = data => {
+  return {
+    type: ACTIONS.DELETE_TASK_SUCCESS,
+    data
+  };
+};
+
+export const deleteTaskError = data => {
+  return {
+    type: ACTIONS.DELETE_TASK_ERROR,
     data
   };
 };

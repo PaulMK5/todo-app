@@ -4,18 +4,6 @@ import { history } from '../App';
 
 const axiosInst = axios.create({ baseURL: `${API_BASE}/users` });
 
-export const exampleAPI = async counter => {
-  const res = await axios.post('http://localhost:5000/example', { counter });
-  return res.data.data;
-};
-
-export const exampleClickerAPI = async data => {
-  const res = await axios.post('http://localhost:5000/example/clicker', {
-    data
-  });
-  return res.data.data;
-};
-
 export const registerUser = async userInput => {
   const res = await axiosInst.post('/sign-up', userInput);
 
@@ -74,13 +62,8 @@ export async function refreshSession() {
 export const loginUser = async userInput => {
   const res = await axiosInst.post('/sign-in', userInput);
 
-  if (res.status === 404) {
+  if (res.status !== 200) {
     return Promise.reject(res.data.error);
-  }
-
-  if (res.status === 403) {
-    console.log('received 403 response with error in loginUser: ', res.data);
-    return Promise.reject(res.data);
   }
 
   localStorage.setItem('accessToken', res.data.tokens.accessToken);

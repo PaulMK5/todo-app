@@ -7,8 +7,13 @@ const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const RefreshTokenError = require('./errors/RefreshTokenError');
 const AccessTokenError = require('./errors/AccessTokenError');
 const TaskNotFoundError = require('./errors/TaskNotFoundError');
+const InvalidCredentialsError = require('./errors/InvalidCredentialsError');
 
 module.exports.errorHandler = async (err, req, res, next) => {
+  if (err instanceof InvalidCredentialsError) {
+    return res.status(403).send({ error: err.message });
+  }
+
   if (err instanceof TaskNotFoundError) {
     return res.status(403).send({ error: err.message });
   }

@@ -6,6 +6,7 @@ const {
 } = require('../services/tokenServices');
 const RefreshTokenError = require('../errors/RefreshTokenError');
 const UserNotFoundError = require('../errors/UserNotFoundError');
+const InvalidCredentialsError = require('../errors/InvalidCredentialsError');
 const { SALT_ROUNDS } = require('../configs/constants');
 
 module.exports.registerUser = async (req, res, next) => {
@@ -29,10 +30,13 @@ module.exports.loginUser = async (req, res, next) => {
     } = req;
 
     const found = await User.findOne({ email });
-    const result = await bcrypt.compare(password, found.passwordHash);
+    let passCompareRes;
+    if (found) {
+      passCompareRes = await bcrypt.compare(password, found.passwordHash);
+    }
 
-    if (!result || !found) {
-      return res.status(403).send({ error: 'incorrect credentials' });
+    if (!passCompareRes || !found) {
+      throw new InvalidCredentialsError('incorrect credentials');
     }
 
     const tokens = await createTokenPair(found.id, found.email);

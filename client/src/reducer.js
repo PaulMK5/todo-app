@@ -1,70 +1,57 @@
 import ACTIONS from './actionTypes';
 
 const initialState = {
-  counter: 0,
-  step: 0,
+  user: null,
+  tasks: [],
   isFetching: false,
-  serverResponse: null,
-  error: null,
-  clickerResponse: null
+  error: null
 };
 
 export const reducer = (state = initialState, action) => {
+  console.log('action in reducer: ');
+  console.log(action);
   switch (action.type) {
-    case ACTIONS.INCREMENT_ACTION: {
-      return {
-        ...state,
-        counter: state.counter + state.step
-      };
-    }
-    case ACTIONS.DECREMENT_ACTION: {
-      return {
-        ...state,
-        counter: state.counter - state.step
-      };
-    }
-    case ACTIONS.CHANGE_STEP: {
-      return {
-        ...state,
-        step: action.data
-      };
-    }
-    case ACTIONS.REQUEST_COUNTER_FETCHING: {
-      return {
-        ...state,
-        isFetching: true
-      };
-    }
-    case ACTIONS.REQUEST_COUNTER_SUCCESS: {
-      return {
-        ...state,
-        serverResponse: action.data
-      };
-    }
-    case ACTIONS.REQUEST_COUNTER_ERROR: {
+    case ACTIONS.LOGIN_USER_ERROR:
+    case ACTIONS.REGISTER_USER_ERROR:
+    case ACTIONS.GET_TASKS_ERROR:
+    case ACTIONS.CREATE_TASK_ERROR:
+    case ACTIONS.DELETE_TASK_ERROR: {
       return {
         ...state,
         error: action.data
       };
     }
-    case ACTIONS.CLICKER_FETCH: {
+
+    case ACTIONS.LOGIN_USER_SUCCESS:
+    case ACTIONS.REGISTER_USER_SUCCESS: {
       return {
         ...state,
-        isFetching: true
+        user: action.data,
+        error: null
       };
     }
-    case ACTIONS.CLICKER_RESPONSE_SUCCESS: {
-      console.log('action in reducer');
-      console.log(action);
+    case ACTIONS.GET_TASKS_SUCCESS: {
       return {
         ...state,
-        clickerResponse: action.data
+        tasks: action.data,
+        error: null
       };
     }
-    case ACTIONS.CLICKER_RESPONSE_ERROR: {
+    case ACTIONS.CREATE_TASK_SUCCESS: {
+      const { data: newTask } = action;
       return {
         ...state,
-        error: action.data
+        tasks: [...state.tasks, newTask],
+        error: null
+      };
+    }
+    case ACTIONS.DELETE_TASK_SUCCESS: {
+      const { data: taskId } = action;
+      const filtered = state.tasks.filter(task => task._id !== taskId);
+      return {
+        ...state,
+        tasks: filtered,
+        error: null
       };
     }
     default: {

@@ -16,13 +16,4 @@ app.use(express.json());
 app.use('/api', router);
 app.use(errorHandler);
 
-app.post('/example', async (req, res, next) => {
-  res.status(200).send({ data: req.body.counter });
-});
-
-app.post('/example/clicker', async (req, res, next) => {
-  console.log('request data: ', req.body.data);
-  res.status(200).send({ data: 'hello' });
-});
-
 module.exports = app;

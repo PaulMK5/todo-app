@@ -1,11 +1,14 @@
 import { takeLatest } from 'redux-saga/effects';
 import ACTIONS from '../actionTypes';
-import { createServerSaga } from './serverSaga';
-import { createClickerSaga } from './clickerSaga';
+import { loginSaga, registerSaga } from './authSaga';
+import { getTasksSaga, createTaskSaga, deleteTaskSaga } from './tasksSaga';
 
 function* rootSaga() {
-  yield takeLatest(ACTIONS.REQUEST_COUNTER_FETCHING, createServerSaga);
-  yield takeLatest(ACTIONS.CLICKER_FETCH, createClickerSaga);
+  yield takeLatest(ACTIONS.LOGIN_USER_REQUEST, loginSaga);
+  yield takeLatest(ACTIONS.REGISTER_USER_REQUEST, registerSaga);
+  yield takeLatest(ACTIONS.GET_TASKS_REQUEST, getTasksSaga);
+  yield takeLatest(ACTIONS.CREATE_TASK_REQUEST, createTaskSaga);
+  yield takeLatest(ACTIONS.DELETE_TASK_REQUEST, deleteTaskSaga);
 }
 
 export default rootSaga;

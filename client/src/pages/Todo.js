@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
 import TodoList from '../components/TodoList';
 import { getTasks, createTask, deleteTask } from '../api/taskApi';
+import {
+  getTasksRequest,
+  createTaskRequest,
+  deleteTaskRequest
+} from '../actionCreator';
 import TodoForm from '../components/TodoForm';
 
 const Todo = props => {
   const navigate = useNavigate();
-  const [todos, setTodos] = useState([]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     getTasks()
       .then(tasks => {
         setTodos(tasks);
@@ -18,9 +23,13 @@ const Todo = props => {
         console.log('navigating to home');
         navigate('/');
       });
+  }, []); */
+
+  useEffect(() => {
+    props.getTasksRequest();
   }, []);
 
-  const getNewTask = data => {
+  /* const getNewTask = data => {
     createTask({
       authorId: props.user._id,
       status: 'new',
@@ -33,9 +42,16 @@ const Todo = props => {
       .catch(error => {
         console.log(error);
       });
+  }; */
+
+  const getNewTask = data => {
+    props.createTaskRequest({
+      status: 'new',
+      ...data
+    });
   };
 
-  const removeTask = taskId => {
+  /* const removeTask = taskId => {
     deleteTask({ taskId })
       .then(() => {
         const filtered = todos.filter(task => task._id !== taskId);
@@ -44,15 +60,29 @@ const Todo = props => {
       .catch(error => {
         console.log(error);
       });
+  }; */
+
+  const removeTask = taskId => {
+    deleteTask(taskId);
   };
 
   return (
     <div>
       <h1>ToDo List</h1>
       <TodoForm sendTask={getNewTask} />
-      <TodoList todos={todos} removeTask={removeTask} />
+      <TodoList todos={props.tasks} removeTask={removeTask} />
     </div>
   );
 };
 
-export default Todo;
+const mapStateToProps = ({ tasks }) => ({ tasks });
+
+const mapDispatchToProps = {
+  getTasksRequest,
+  createTaskRequest,
+  deleteTaskRequest
+};
+
+const WrappedComponent = connect(mapStateToProps, mapDispatchToProps)(Todo);
+
+export default WrappedComponent;

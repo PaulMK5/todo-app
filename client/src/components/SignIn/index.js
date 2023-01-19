@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik, Form, Field } from 'formik';
-import { loginUser } from '../../api/userApi';
+import { loginUserRequest } from '../../actionCreator';
+import { connect } from 'react-redux';
 
 const initialValues = {
   email: '',
@@ -9,7 +10,7 @@ const initialValues = {
 
 const SignIn = props => {
   const onSubmit = (values, actions) => {
-    props.sendData({ cb: loginUser, values });
+    props.loginUserRequest(values);
   };
 
   return (
@@ -28,4 +29,10 @@ const SignIn = props => {
   );
 };
 
-export default SignIn;
+const mapDispatchToProps = {
+  loginUserRequest
+};
+
+const WrappedComponent = connect(null, mapDispatchToProps)(SignIn);
+
+export default WrappedComponent;
