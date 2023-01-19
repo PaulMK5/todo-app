@@ -1,41 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { Routes, Route } from 'react-router-dom';
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import Home from './pages/Home';
 import Todo from './pages/Todo';
-import { getUser } from './api/userApi';
+import { getUserRequest } from './actionCreator';
 
 export const history = createBrowserHistory({ window });
 
-function App() {
-  const [user, setUser] = useState(null);
-
-  /* useEffect(() => {
-    if (!user) {
-      getUser()
-        .then(user => {
-          console.log('in App getUser then');
-          if (user) {
-            setUser(user);
-            history.push('/tasks');
-          }
-        })
-        .catch(err => {
-          console.error('Error caught in App useEffect', err);
-          // localStorage.removeItem('token');
-        });
+function App(props) {
+  useEffect(() => {
+    if (!props.user) {
+      props.getUserRequest();
     }
-  }, [user]); */
+  }, []);
 
   return (
     <HistoryRouter history={history}>
       <Routes>
-        <Route path="/" element={<Home sendUser={setUser} />} />
-        <Route path="/tasks/" element={<Todo user={user} />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/tasks/" element={<Todo />} />
       </Routes>
     </HistoryRouter>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({ user: state.user });
+const mapDispatchToProps = { getUserRequest };
+
+const WrappedComponent = connect(mapStateToProps, mapDispatchToProps)(App);
+
+export default WrappedComponent;

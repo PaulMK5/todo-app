@@ -45,7 +45,7 @@ module.exports.errorHandler = async (err, req, res, next) => {
 
   if (err instanceof RefreshTokenError) {
     return res
-      .status(403)
+      .status(401)
       .set({
         'Access-Control-Expose-Headers': 'error',
         error: 'refresh token expired or not found in db'

@@ -1,5 +1,25 @@
 import ACTIONS from './actionTypes';
 
+export const getUserRequest = () => {
+  return {
+    type: ACTIONS.GET_USER_REQUEST
+  };
+};
+
+export const getUserSuccess = data => {
+  return {
+    type: ACTIONS.GET_USER_SUCCESS,
+    data
+  };
+};
+
+export const getUserError = data => {
+  return {
+    type: ACTIONS.GET_USER_ERROR,
+    data
+  };
+};
+
 export const loginUserRequest = data => {
   return {
     type: ACTIONS.LOGIN_USER_REQUEST,

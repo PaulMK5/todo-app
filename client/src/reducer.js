@@ -12,6 +12,7 @@ export const reducer = (state = initialState, action) => {
   console.log(action);
   switch (action.type) {
     case ACTIONS.LOGIN_USER_ERROR:
+    case ACTIONS.GET_USER_ERROR:
     case ACTIONS.REGISTER_USER_ERROR:
     case ACTIONS.GET_TASKS_ERROR:
     case ACTIONS.CREATE_TASK_ERROR:
@@ -23,6 +24,7 @@ export const reducer = (state = initialState, action) => {
     }
 
     case ACTIONS.LOGIN_USER_SUCCESS:
+    case ACTIONS.GET_USER_SUCCESS:
     case ACTIONS.REGISTER_USER_SUCCESS: {
       return {
         ...state,
