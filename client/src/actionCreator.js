@@ -18,3 +18,45 @@ export const changeStep = data => {
     data
   };
 };
+
+export const requestCounterFetching = data => {
+  return {
+    type: ACTIONS.REQUEST_COUNTER_FETCHING,
+    data
+  };
+};
+
+export const requestCounterSuccess = data => {
+  return {
+    type: ACTIONS.REQUEST_COUNTER_SUCCESS,
+    data
+  };
+};
+
+export const requestCounterError = data => {
+  return {
+    type: ACTIONS.REQUEST_COUNTER_ERROR,
+    data
+  };
+};
+
+export const clickerSendData = data => {
+  return {
+    type: ACTIONS.CLICKER_FETCH,
+    data
+  };
+};
+
+export const clickerResponseSuccess = data => {
+  return {
+    type: ACTIONS.CLICKER_RESPONSE_SUCCESS,
+    data
+  };
+};
+
+export const clickerResponseError = data => {
+  return {
+    type: ACTIONS.CLICKER_RESPONSE_ERROR,
+    data
+  };
+};

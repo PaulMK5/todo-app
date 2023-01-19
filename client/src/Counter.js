@@ -1,6 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { incrementAction, decrementAction, changeStep } from './actionCreator';
+import {
+  incrementAction,
+  decrementAction,
+  changeStep,
+  requestCounterFetching
+} from './actionCreator';
 
 const Counter = props => {
   return (
@@ -15,6 +20,14 @@ const Counter = props => {
       />
       <button onClick={props.increment}>+</button>
       <button onClick={props.decrement}>-</button>
+      <button
+        onClick={() => {
+          props.requestCounterFetching(props.counter);
+        }}
+      >
+        Send
+      </button>
+      {props.isFetching && <div>FETCHING</div>}
     </div>
   );
 };
@@ -24,7 +37,8 @@ const mapStateToProps = state => state;
 const mapDispatchToProps = {
   increment: incrementAction,
   decrement: decrementAction,
-  changeStep
+  changeStep,
+  requestCounterFetching
 };
 
 const WrappedComponent = connect(mapStateToProps, mapDispatchToProps)(Counter);

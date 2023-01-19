@@ -3,16 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import { reducer } from './reducer';
 import Counter from './Counter';
-
-const store = createStore(reducer);
+import Clicker from './Clicker';
+import store from './store';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
-    <Counter />
+    <>
+      <Counter />
+      <Clicker />
+    </>
   </Provider>
 );
 // root.render(<App />);
